@@ -48,7 +48,7 @@ trait BlockRules extends Parser with ExpressionRules with GlobalRules {
 
   def codeBlockKey:Rule1[CodeBlock] = rule {&(openA) ~ codeBlock}
 
-  def codeBlock:Rule1[CodeBlock] = rule {openA ~  zeroOrMore( ws ~ (varAliasKey | varMemberKey | varKey | comment | variableSectionKey) ~ ws) ~ closeA ~> ((s:Seq[TemplatePart]) => CodeBlock(s))}
+  def codeBlock:Rule1[CodeBlock] = rule {openA ~  zeroOrMore( ws ~ (varAliasKey | varMemberKey | varKey | comment | variableSectionKey | foreachBlockKey | conditionalBlockSetKey | conditionalBlockKey) ~ ws) ~ closeA ~> ((s:Seq[TemplatePart]) => CodeBlock(s))}
 
   def comment:Rule1[EmptyTemplatePart.type ] = rule { &("#" | "//") ~ capture(commentsChar) ~ "\n" ~>((s:String) => EmptyTemplatePart )}
 
