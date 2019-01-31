@@ -626,6 +626,26 @@ class OpenlawExecutionEngineSpec extends FlatSpec with Matchers {
     }
   }
 
+  it should "be able to use a for each block in a code block" in {
+      val mainTemplate =
+        compile(
+          """<%[[My Collection:Collection<Text>]]
+            |
+            |{{#for each title : My Collection =>
+            | [[title]]
+            |}}%>
+          """.stripMargin)
+
+      val collectionType = AbstractCollectionType.createParameterInstance(TextType)
+      engine.execute(mainTemplate, TemplateParameters("title" -> "this is a test", "My Collection" -> collectionType.internalFormat(CollectionValue(size = 3, values = Map(0 -> "test1", 1 -> "test2", 2 -> "test3"), collectionType = collectionType))), Map()) match {
+        case Right(result) =>
+          result.state shouldBe ExecutionFinished
+          val text = parser.forReview(result.agreements.head,ParagraphEdits())
+          text shouldBe """<p class="no-section">test1<br />test2<br />test3<br /><br />        </p>"""
+        case Left(ex) =>
+          fail(ex)
+  }
+
   it should "handle section correctly when within a conditional" in {
     val template =
       compile("""<%

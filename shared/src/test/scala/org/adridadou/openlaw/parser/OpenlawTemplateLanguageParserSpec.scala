@@ -335,6 +335,21 @@ class OpenlawTemplateLanguageParserSpec extends FlatSpec with Matchers with Eith
     resultShouldBe(forReview(text, Map("Var" -> "hello world")), """<p class="no-section"><em> hello world </em> <strong> hello world </strong> <strong><em> hello world </em></strong></p>""")
   }
 
+  it should "be able to use a conditional in a code block" in {
+    val clauseText = "<% This is my clause. [[contractor:Text \"the contractor who is going to do the job\"]]. {{shouldShowBirthdate \"Should we show the birthdate?\" => And I am born in [[contractorBirthdate \"The birthdate of the contractor\" ]]}} %>"
+
+    resultShouldBe(forReview(clauseText, Map(
+      "contractor" -> "David Roon",
+      "shouldShowBirthdate" -> "true",
+      "contractorBirthdate" -> "01.13.1983"
+    )) , """<p class="no-section"><% This is my clause. David Roon. And I am born in 01.13.1983 %></p>""")
+
+    resultShouldBe(forReview(clauseText, Map(
+      "contractor" -> "David Roon",
+      "shouldShowBirthdate" -> "false"
+    )), """<p class="no-section"><% This is my clause. David Roon. %></p>""")
+  }
+
   it should "be able to override section symbols" in {
     resultShouldBe(forReview("^ Section 1", Map()), """<ul class="list-lvl-1"><li><p>1.  Section 1</p></li></ul>""")
     resultShouldBe(forReview("^(_(symbol: 'Decimal')) Section 1", Map()), """<ul class="list-lvl-1"><li><p>1.  Section 1</p></li></ul>""")
